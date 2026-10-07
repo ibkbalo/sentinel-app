@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block page_title %}Dashboard · {{ title }}{% endblock %}
+
+{% block content %}
+<h1>{{ title }}</h1>
+<p class="subtitle">Overview of current security work across Sentinel Stacks.</p>
+
+<section class="cards">
+    <div class="card">
+        <div class="card-label">Open Work Items</div>
+        <div class="card-value">{{ summary.open }}</div>
+    </div>
+    <div class="card card-critical">
+        <div class="card-label">Critical Findings</div>
+        <div class="card-value">{{ summary.critical }}</div>
+    </div>
+    <div class="card card-pending">
+        <div class="card-label">Changes Awaiting Approval</div>
+        <div class="card-value">{{ summary.awaiting_approval }}</div>
+    </div>
+    <div class="card card-done">
+        <div class="card-label">Completed Work</div>
+        <div class="card-value">{{ summary.completed }}</div>
+    </div>
+</section>
+
+<p><a class="button" href="{{ url_for('work_items') }}">View all work items</a></p>
+{% endblock %}

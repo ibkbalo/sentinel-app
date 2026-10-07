@@ -1,0 +1,142 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #f4f6f9;
+    color: #1f2937;
+}
+
+.site-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background: #0f172a;
+    color: #fff;
+}
+
+.brand {
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.site-header nav a {
+    color: #cbd5e1;
+    text-decoration: none;
+    margin-left: 1.5rem;
+}
+
+.site-header nav a:hover,
+.site-header nav a.active {
+    color: #fff;
+    border-bottom: 2px solid #38bdf8;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 2rem auto;
+    padding: 0 1.5rem;
+}
+
+h1 {
+    margin-bottom: 0.25rem;
+}
+
+.subtitle {
+    color: #64748b;
+    margin-top: 0;
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+
+.card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 1.25rem;
+    border-left: 5px solid #38bdf8;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.card-critical { border-left-color: #dc2626; }
+.card-pending { border-left-color: #f59e0b; }
+.card-done { border-left-color: #16a34a; }
+
+.card-label {
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+.card-value {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-top: 0.5rem;
+}
+
+.button {
+    display: inline-block;
+    background: #0f172a;
+    color: #fff;
+    padding: 0.6rem 1.1rem;
+    border-radius: 6px;
+    text-decoration: none;
+}
+
+.button:hover {
+    background: #1e293b;
+}
+
+.work-items {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.work-items th,
+.work-items td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.work-items th {
+    background: #f1f5f9;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    color: #475569;
+}
+
+.mono {
+    font-family: Consolas, "Courier New", monospace;
+}
+
+.badge {
+    display: inline-block;
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #fff;
+}
+
+.severity-critical { background: #dc2626; }
+.severity-high { background: #ea580c; }
+.severity-medium { background: #ca8a04; }
+.severity-low { background: #2563eb; }
+
+.site-footer {
+    text-align: center;
+    color: #94a3b8;
+    font-size: 0.85rem;
+    padding: 2rem 0;
+}
