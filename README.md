@@ -72,3 +72,13 @@ python app.py
 
 Then open <http://127.0.0.1:5000> in your browser. The health check is at
 <http://127.0.0.1:5000/health>.
+
+## Running Tests
+
+Tests use pytest and Flask's built-in test client, so no running server,
+database, or external services are needed. With the virtual environment active:
+
+```bash
+pip install -r requirements-dev.txt
+python -m pytest -v
+```
