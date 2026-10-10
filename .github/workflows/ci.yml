@@ -29,3 +29,27 @@ jobs:
 
       - name: Run tests
         run: python -m pytest -v
+
+  sast:
+    name: Bandit SAST
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Bandit
+        run: python -m pip install bandit==1.8.6
+
+      - name: Run Bandit (fail on medium or high severity)
+        run: >-
+          python -m bandit
+          --recursive .
+          --exclude ./.venv,./.venv-security,./venv,./env,./.git,./.pytest_cache,__pycache__
+          --severity-level medium

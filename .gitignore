@@ -26,3 +26,4 @@ Thumbs.db
 
 # Application logs
 *.log
+.venv-security/
