@@ -35,8 +35,11 @@ Phase 1 is intentionally small:
 
 ```
 sentinel-app/
+├── .dockerignore
+├── Dockerfile
 ├── app.py
 ├── requirements.txt
+├── requirements-dev.txt
 ├── README.md
 ├── static/
 │   └── style.css
@@ -82,3 +85,40 @@ database, or external services are needed. With the virtual environment active:
 pip install -r requirements-dev.txt
 python -m pytest -v
 ```
+
+## Running with Docker (local development)
+
+The `Dockerfile` builds a single-stage image from a pinned slim Python 3.11
+base. It installs only `requirements.txt` (Flask and Gunicorn), runs as a
+dedicated non-root user, and serves the app with Gunicorn on port 8000. A
+built-in health check calls `/health` using Python's standard library.
+
+This setup is for one-user local development and is not production-ready.
+
+**Windows (PowerShell)**, from the `sentinel-app` folder:
+
+```powershell
+# Build the image
+docker build -t sentinel-app:local .
+
+# Run the container, reachable only from this machine (127.0.0.1)
+docker run -d --name sentinel-app-test -p 127.0.0.1:8081:8000 sentinel-app:local
+
+# Confirm the container is running (STATUS shows "healthy" after ~30 seconds)
+docker ps --filter "name=sentinel-app-test"
+
+# Verify the health endpoint
+Invoke-RestMethod http://127.0.0.1:8081/health
+
+# Check Docker's health check status
+docker inspect --format "{{.State.Health.Status}}" sentinel-app-test
+
+# View Gunicorn logs
+docker logs sentinel-app-test
+
+# Stop and remove the test container
+docker stop sentinel-app-test
+docker rm sentinel-app-test
+```
+
+While the container runs, open <http://127.0.0.1:8081> in your browser.

@@ -1,0 +1,42 @@
+# Version control and CI
+.git
+.gitignore
+.github
+
+# Virtual environments
+.venv
+.venv-security
+venv
+env
+
+# Python caches and compiled files
+__pycache__
+**/__pycache__
+*.py[cod]
+
+# Tests and development-only files
+tests
+pytest.ini
+requirements-dev.txt
+.pytest_cache
+.coverage
+htmlcov
+
+# Local environment and secrets files
+.env
+.env.*
+*.pem
+*.key
+
+# Editor, OS, and log files
+.vscode
+.idea
+.cursor
+.DS_Store
+Thumbs.db
+*.log
+
+# Docker and documentation files not needed in the image
+Dockerfile
+.dockerignore
+README.md
