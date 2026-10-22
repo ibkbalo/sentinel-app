@@ -27,3 +27,9 @@ Thumbs.db
 # Application logs
 *.log
 .venv-security/
+
+# SQLite databases (never commit local/runtime DB files)
+*.db
+*.sqlite
+*.sqlite3
+data/
