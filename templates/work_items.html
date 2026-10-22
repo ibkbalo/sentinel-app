@@ -4,8 +4,11 @@
 
 {% block content %}
 <h1>Security Work Items</h1>
-<p class="subtitle">Sample data for Phase 1. Items are stored in memory only.</p>
-
+{% if is_empty %}
+<p class="subtitle">No work items are stored in the database yet.</p>
+<p>There are currently no security work items to display. New items will appear here after they are added to the database.</p>
+{% else %}
+<p class="subtitle">Work items loaded from the application database.</p>
 <table class="work-items">
     <thead>
         <tr>
@@ -30,4 +33,5 @@
         {% endfor %}
     </tbody>
 </table>
+{% endif %}
 {% endblock %}

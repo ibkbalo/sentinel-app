@@ -4,15 +4,8 @@ from pathlib import Path
 
 import pytest
 
-from app import CATEGORIES, SEVERITIES, STATUSES, WORK_ITEMS, app, build_summary
+from app import CATEGORIES, SEVERITIES, STATUSES, app
 from work_item_store import WorkItemStore, WorkItemStoreError, default_database_path
-
-EXPECTED_SUMMARY = {
-    "open": 6,
-    "critical": 2,
-    "awaiting_approval": 2,
-    "completed": 2,
-}
 
 
 def valid_item(**overrides):
@@ -38,7 +31,9 @@ def store(tmp_path):
 
 
 @pytest.fixture
-def client():
+def client(tmp_path, monkeypatch):
+    monkeypatch.setenv("SENTINEL_APP_DB_PATH", str(tmp_path / "flask_smoke.db"))
+    monkeypatch.delenv("SENTINEL_APP_DEMO_MODE", raising=False)
     app.config.update(TESTING=True)
     with app.test_client() as client:
         yield client
@@ -194,11 +189,10 @@ def test_default_database_path_uses_env(monkeypatch, tmp_path):
 
 
 def test_existing_flask_behavior_unchanged(client):
-    assert build_summary(WORK_ITEMS) == EXPECTED_SUMMARY
     assert client.get("/").status_code == 200
     assert client.get("/work-items").status_code == 200
     health = client.get("/health").get_json()
     assert health == {"service": "sentinel-app", "status": "healthy"}
     html = client.get("/work-items").get_data(as_text=True)
-    assert "SWI-1001" in html
-    assert "Priya Natarajan" in html
+    assert "No work items are stored in the database yet" in html
+    assert "Demonstration mode" not in html

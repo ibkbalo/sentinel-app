@@ -2,7 +2,7 @@
 
 import pytest
 
-from app import WORK_ITEMS, build_summary, validate_work_item
+from app import build_summary, validate_work_item
 from staff_model import (
     DEPARTMENTS,
     ROLES,
@@ -10,13 +10,7 @@ from staff_model import (
     role_exists,
     validate_catalog_integrity,
 )
-
-EXPECTED_SUMMARY = {
-    "open": 6,
-    "critical": 2,
-    "awaiting_approval": 2,
-    "completed": 2,
-}
+from test_fixtures import EXPECTED_SYNTHETIC_SUMMARY, SYNTHETIC_WORK_ITEMS
 
 EXPECTED_DEPARTMENTS = {
     "DEPT-SEC": "Security Engineering",
@@ -119,8 +113,8 @@ def test_role_metadata_does_not_imply_authentication_or_authorization():
 
 
 def test_existing_application_behavior_unchanged():
-    assert build_summary(WORK_ITEMS) == EXPECTED_SUMMARY
-    for item in WORK_ITEMS:
+    assert build_summary(SYNTHETIC_WORK_ITEMS) == EXPECTED_SYNTHETIC_SUMMARY
+    for item in SYNTHETIC_WORK_ITEMS:
         assert validate_work_item(item) == []
 
 

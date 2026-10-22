@@ -4,7 +4,11 @@
 
 {% block content %}
 <h1>{{ title }}</h1>
+{% if is_empty %}
+<p class="subtitle">No work items are stored in the database yet.</p>
+{% else %}
 <p class="subtitle">Overview of current security work across Sentinel Stacks.</p>
+{% endif %}
 
 <section class="cards">
     <div class="card">

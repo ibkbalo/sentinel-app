@@ -24,13 +24,13 @@ Phase 1 is intentionally small:
 - **Python Flask** application (`app.py`) serving server-rendered pages.
 - **Jinja2 templates** (`templates/`) for the HTML views.
 - **Plain CSS** (`static/style.css`) for styling. No JavaScript framework.
-- **In-memory sample data** defined in `app.py`. No database.
+- **SQLite** persistence for work items (`work_item_store.py`); no automatic sample seeding.
 - No authentication, external APIs, cloud services, or secrets.
 
 | Route         | Description                                      |
 |---------------|--------------------------------------------------|
 | `/`           | Dashboard with summary cards                     |
-| `/work-items` | Table of sample security work items              |
+| `/work-items` | Table of security work items from SQLite         |
 | `/health`     | JSON health check: `{"service": "sentinel-app", "status": "healthy"}` |
 
 ### Current application status (verified)
@@ -38,7 +38,7 @@ Phase 1 is intentionally small:
 - Flask-based internal human staff work-management application.
 - Human-first design; one person currently performs the staff roles.
 - The application remains in development.
-- Work-item data is currently in memory, not persistent storage.
+- Work-item data is stored in SQLite (empty until records are inserted).
 - No AI staff integration is implemented or assumed.
 
 ```
