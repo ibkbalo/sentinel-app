@@ -8,19 +8,13 @@ from app import (
     CATEGORIES,
     SEVERITIES,
     STATUSES,
-    WORK_ITEMS,
     app,
     build_summary,
     normalize_work_item_fields,
     validate_work_item,
 )
-
-EXPECTED_SUMMARY = {
-    "open": 6,
-    "critical": 2,
-    "awaiting_approval": 2,
-    "completed": 2,
-}
+from test_fixtures import EXPECTED_SYNTHETIC_SUMMARY, SYNTHETIC_WORK_ITEMS
+from work_item_store import WorkItemStore
 
 
 def valid_example_item():
@@ -35,7 +29,26 @@ def valid_example_item():
 
 
 @pytest.fixture
-def client():
+def client(tmp_path, monkeypatch):
+    """Flask client backed by an empty temporary SQLite database."""
+    monkeypatch.setenv("SENTINEL_APP_DB_PATH", str(tmp_path / "empty.db"))
+    monkeypatch.delenv("SENTINEL_APP_DEMO_MODE", raising=False)
+    app.config.update(TESTING=True)
+    with app.test_client() as client:
+        yield client
+
+
+@pytest.fixture
+def seeded_client(tmp_path, monkeypatch):
+    """Flask client with synthetic work items inserted into a temp database."""
+    db_path = tmp_path / "seeded.db"
+    monkeypatch.setenv("SENTINEL_APP_DB_PATH", str(db_path))
+    monkeypatch.delenv("SENTINEL_APP_DEMO_MODE", raising=False)
+    store = WorkItemStore(db_path)
+    store.initialize_schema()
+    for item in SYNTHETIC_WORK_ITEMS:
+        store.insert(item)
+    store.close()
     app.config.update(TESTING=True)
     with app.test_client() as client:
         yield client
@@ -68,20 +81,28 @@ def test_work_items_returns_200(client):
     assert response.status_code == 200
 
 
-def test_work_items_page_displays_sample_items(client):
-    html = client.get("/work-items").get_data(as_text=True)
-    assert len(WORK_ITEMS) > 0
-    for item in WORK_ITEMS:
+def test_work_items_page_displays_seeded_items(seeded_client):
+    html = seeded_client.get("/work-items").get_data(as_text=True)
+    assert len(SYNTHETIC_WORK_ITEMS) > 0
+    for item in SYNTHETIC_WORK_ITEMS:
         assert item["id"] in html
         assert item["title"] in html
         assert item["owner"] in html
+    assert "loaded from the application database" in html
 
 
-def test_work_items_page_displays_known_item(client):
-    html = client.get("/work-items").get_data(as_text=True)
-    assert "SWI-1001" in html
-    assert "Patch OpenSSL on customer-facing load balancers" in html
+def test_work_items_page_displays_known_synthetic_item(seeded_client):
+    html = seeded_client.get("/work-items").get_data(as_text=True)
+    assert "SWI-9001" in html
+    assert "Test: patch critical service dependency" in html
     assert "Vulnerability Remediation" in html
+
+
+def test_empty_database_work_items_page(client):
+    html = client.get("/work-items").get_data(as_text=True)
+    assert "No work items are stored in the database yet" in html
+    assert "SWI-9001" not in html
+    assert "Demonstration mode" not in html
 
 
 def test_health_returns_200(client):
@@ -97,28 +118,28 @@ def test_health_returns_expected_json(client):
     assert data["status"] == "healthy"
 
 
-def test_build_summary_matches_sample_data():
-    assert build_summary(WORK_ITEMS) == EXPECTED_SUMMARY
+def test_build_summary_matches_synthetic_data():
+    assert build_summary(SYNTHETIC_WORK_ITEMS) == EXPECTED_SYNTHETIC_SUMMARY
 
 
-def test_dashboard_summary_counts_match_sample_data(client):
-    html = client.get("/").get_data(as_text=True)
-    assert card_value(html, "Open Work Items") == EXPECTED_SUMMARY["open"]
-    assert card_value(html, "Critical Findings") == EXPECTED_SUMMARY["critical"]
+def test_dashboard_summary_counts_match_seeded_data(seeded_client):
+    html = seeded_client.get("/").get_data(as_text=True)
+    assert card_value(html, "Open Work Items") == EXPECTED_SYNTHETIC_SUMMARY["open"]
+    assert card_value(html, "Critical Findings") == EXPECTED_SYNTHETIC_SUMMARY["critical"]
     assert (
         card_value(html, "Changes Awaiting Approval")
-        == EXPECTED_SUMMARY["awaiting_approval"]
+        == EXPECTED_SYNTHETIC_SUMMARY["awaiting_approval"]
     )
-    assert card_value(html, "Completed Work") == EXPECTED_SUMMARY["completed"]
+    assert card_value(html, "Completed Work") == EXPECTED_SYNTHETIC_SUMMARY["completed"]
 
 
-def test_sample_work_items_validate_successfully():
-    for item in WORK_ITEMS:
+def test_synthetic_work_items_validate_successfully():
+    for item in SYNTHETIC_WORK_ITEMS:
         assert validate_work_item(item) == []
 
 
-def test_seed_work_item_ids_are_unique():
-    ids = [item["id"] for item in WORK_ITEMS]
+def test_synthetic_work_item_ids_are_unique():
+    ids = [item["id"] for item in SYNTHETIC_WORK_ITEMS]
     assert len(ids) == len(set(ids))
 
 
@@ -234,8 +255,8 @@ def test_invalid_id_format():
 
 def test_duplicate_id_rejected_when_existing_ids_supplied():
     item = valid_example_item()
-    item["id"] = "SWI-1001"
-    errors = validate_work_item(item, existing_ids={"SWI-1001", "SWI-1002"})
+    item["id"] = "SWI-9001"
+    errors = validate_work_item(item, existing_ids={"SWI-9001", "SWI-9002"})
     assert any("Duplicate" in error for error in errors)
 
 
@@ -267,7 +288,7 @@ def test_require_id_false_skips_id_checks():
 
 
 def test_build_summary_unchanged_after_validation_helpers():
-    assert build_summary(WORK_ITEMS) == EXPECTED_SUMMARY
-    for item in WORK_ITEMS:
+    assert build_summary(SYNTHETIC_WORK_ITEMS) == EXPECTED_SYNTHETIC_SUMMARY
+    for item in SYNTHETIC_WORK_ITEMS:
         assert validate_work_item(item) == []
-    assert build_summary(WORK_ITEMS) == EXPECTED_SUMMARY
+    assert build_summary(SYNTHETIC_WORK_ITEMS) == EXPECTED_SYNTHETIC_SUMMARY

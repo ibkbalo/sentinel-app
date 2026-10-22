@@ -1,8 +1,8 @@
 """SQLite persistence for Sentinel App work items.
 
 Uses the stdlib sqlite3 module only (no ORM). This layer does not expose HTTP
-routes, authentication, or staff accounts. Demonstration WORK_ITEMS in app.py
-are not auto-migrated into the database.
+routes, authentication, or staff accounts. Schema initialization does not
+insert sample or fictional work-item records.
 
 Database path is configurable so Docker can later mount persistent storage
 (for example SENTINEL_APP_DB_PATH=/data/sentinel.db with a volume on /data).
@@ -15,7 +15,7 @@ import sqlite3
 from pathlib import Path
 from typing import Any
 
-from app import normalize_work_item_fields, validate_work_item
+from work_item_validation import normalize_work_item_fields, validate_work_item
 
 DEFAULT_DB_ENV_VAR = "SENTINEL_APP_DB_PATH"
 DEFAULT_DB_FILENAME = "sentinel_app.db"
