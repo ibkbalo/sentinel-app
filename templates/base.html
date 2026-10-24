@@ -12,6 +12,7 @@
         <nav>
             <a href="{{ url_for('index') }}" class="{% if request.endpoint == 'index' %}active{% endif %}">Dashboard</a>
             <a href="{{ url_for('work_items') }}" class="{% if request.endpoint == 'work_items' %}active{% endif %}">Work Items</a>
+            <a href="{{ url_for('agent_jobs') }}" class="{% if request.endpoint == 'agent_jobs' %}active{% endif %}">Agent Jobs</a>
         </nav>
     </header>
 

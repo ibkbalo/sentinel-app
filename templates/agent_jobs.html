@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block page_title %}Agent Jobs · {{ title }}{% endblock %}
+
+{% block content %}
+<h1>Sentinel Stacks Agent Jobs — Read Only</h1>
+<p class="subtitle">{{ feed_message }}</p>
+<p class="notice">
+    This page displays Agent Face backlog data only. It is separate from Sentinel App
+    work items stored in SQLite. Approval, rejection, scanning, and remediation actions
+    are not available here.
+</p>
+
+{% if feed_state == 'unavailable' %}
+<div class="banner banner-warning" role="status">
+    Agent Face is offline or unreachable on the local loopback interface.
+</div>
+{% elif feed_state == 'invalid' %}
+<div class="banner banner-warning" role="status">
+    The Agent response could not be interpreted. Internal diagnostic details are not shown.
+</div>
+{% elif feed_state == 'error' %}
+<div class="banner banner-warning" role="status">
+    A connection or configuration problem prevented loading Agent jobs.
+</div>
+{% elif feed_state == 'empty' %}
+<div class="banner banner-info" role="status">
+    The Agent backlog is empty.
+</div>
+{% endif %}
+
+{% if show_table %}
+<table class="work-items">
+    <thead>
+        <tr>
+            <th>Job ID</th>
+            <th>Role / Domain</th>
+            <th>Status</th>
+            <th>Total Findings</th>
+            <th>Critical</th>
+            <th>High</th>
+            <th>Created</th>
+            <th>SLA Hint</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for job in jobs %}
+        <tr>
+            <td class="mono">{{ job.job_id }}</td>
+            <td>{{ job.role if job.role is not none else "—" }}</td>
+            <td>{{ job.status if job.status is not none else "—" }}</td>
+            <td>{{ job.total_findings if job.total_findings is not none else "—" }}</td>
+            <td>{{ job.critical if job.critical is not none else "—" }}</td>
+            <td>{{ job.high if job.high is not none else "—" }}</td>
+            <td>{{ job.created_at if job.created_at is not none else "—" }}</td>
+            <td>{{ job.sla_hint if job.sla_hint is not none else "—" }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+{% endblock %}

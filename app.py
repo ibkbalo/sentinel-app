@@ -20,6 +20,13 @@ Multi-role architecture (future; not implemented in this module yet):
 
 from flask import Flask, abort, g, jsonify, render_template
 
+from agent_feed import (
+    STATUS_EMPTY,
+    STATUS_INVALID,
+    STATUS_OK,
+    STATUS_UNAVAILABLE,
+    fetch_agent_backlog,
+)
 from work_item_store import WorkItemStore, default_database_path
 from work_item_validation import (
     CATEGORIES,
@@ -112,6 +119,49 @@ def work_items():
         title=APP_TITLE,
         work_items=items,
         is_empty=len(items) == 0,
+    )
+
+
+@app.route("/agent-jobs")
+def agent_jobs():
+    """Read-only Agent Face backlog page (separate from SQLite work items)."""
+    feed = fetch_agent_backlog()
+    status = feed.get("status")
+    jobs = feed.get("jobs") or []
+
+    if status == STATUS_OK:
+        state = "ok"
+        message = "Jobs reported by Sentinel Stacks Agent (read-only view)."
+    elif status == STATUS_EMPTY:
+        state = "empty"
+        message = "No pending Agent jobs are available."
+    elif status == STATUS_UNAVAILABLE:
+        state = "unavailable"
+        message = (
+            "Sentinel Stacks Agent Face is currently unavailable. "
+            "No Agent jobs can be displayed."
+        )
+    elif status == STATUS_INVALID:
+        state = "invalid"
+        message = (
+            "The Agent returned an invalid response. "
+            "No Agent jobs can be displayed."
+        )
+    else:
+        # STATUS_ERROR and any unexpected connector status
+        state = "error"
+        message = (
+            "Unable to retrieve Agent jobs at this time. "
+            "No Agent jobs can be displayed."
+        )
+
+    return render_template(
+        "agent_jobs.html",
+        title=APP_TITLE,
+        feed_state=state,
+        feed_message=message,
+        jobs=jobs if state == "ok" else [],
+        show_table=state == "ok" and len(jobs) > 0,
     )
 
 
